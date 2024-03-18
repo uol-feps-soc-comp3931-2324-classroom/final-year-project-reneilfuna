@@ -1,15 +1,12 @@
 import numpy as np
 import glob
-import cv2
 from torch.utils.data import Dataset
-
-def through(x):
-    return x
+from torchvision.io import read_image, ImageReadMode
 
 class Fingers(Dataset):
 
     # define constructor
-    def __init__(self, directory, transform=through):
+    def __init__(self, directory, transform=None):
         '''
         Arguments:
         + directory (string): Directory containing image data
@@ -20,21 +17,25 @@ class Fingers(Dataset):
         self.transform = transform
         self.glob_path = glob.glob(directory)
         self.dataset = []
+        self.class_set = []
         # Images follow the pattern of <some random string>_<class>.png, we parse through the string name to extract the number of fingers in the photo.
         for img_path in self.glob_path:
-            img_label = img_path[-6:-5]
-            img = cv2.imread(img_path)
-            self.dataset.append({'image': img, 'label': img_label})
+            self.dataset.append(img_path)
+            self.class_set.append(int(img_path[-6:-5]))
+        # dataset contains paths of all the iamges
         self.dataset = np.array(self.dataset)
+        
 
     def __len__(self):
-        # length of the dictionary
+        # length of list
         return len(self.dataset)
 
     def __getitem__(self, idx):
-        sample = self.dataset[idx]
+        image = read_image(self.dataset[idx], ImageReadMode.UNCHANGED).float()
+        label = self.class_set[idx]
+
         # return image and label
-        return(self.transform(sample['image']), sample['label'])
+        return(image, label)
     
     
 
