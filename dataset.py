@@ -3,10 +3,13 @@ import glob
 import cv2
 from torch.utils.data import Dataset
 
+def through(x):
+    return x
+
 class Fingers(Dataset):
 
     # define constructor
-    def __init__(self, directory, transform=None):
+    def __init__(self, directory, transform=through):
         '''
         Arguments:
         + directory (string): Directory containing image data
@@ -30,7 +33,8 @@ class Fingers(Dataset):
 
     def __getitem__(self, idx):
         sample = self.dataset[idx]
-        return(sample['image'], sample['label'])
+        # return image and label
+        return(self.transform(sample['image']), sample['label'])
     
     
 
