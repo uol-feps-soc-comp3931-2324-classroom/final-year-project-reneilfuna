@@ -17,10 +17,10 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Hyper parameters
-    batch_s = 10
+    batch_s = 36
     n_classes = 6
-    learning_rate = 0.01
-    n_epochs = 5
+    learning_rate = 0.005
+    n_epochs = 3
 
     preprocess = transforms.Compose([transforms.ToTensor()])
 
@@ -60,7 +60,40 @@ def main():
             if (i+1) % 100 == 0:
                 print(f'Epoch [{epoch+1}/{n_epochs}], Step [{i+1}/{total_steps}], Loss: {loss.item():.4f}')
 
-    print('Finished Training')           
+    print('Finished Training')       
+
+    with torch.no_grad(): # Don't need backward propagation and gradient calculations
+        n_correct = 0
+        n_samples = 0
+        n_class_correct = [0 for i in range(10)]
+        n_class_samples = [0 for i in range(10)]
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            # max returns (value, index)
+            _, predicted = torch.max(outputs, 1)
+            n_samples += labels.size(0)
+            n_correct += (predicted == labels).sum().item()
+
+            for i in range(batch_s):
+                label = labels[i]
+                pred = predicted[i]
+                if (label == pred):
+                    n_class_correct[label] += 1
+                n_class_samples[label] += 1
+
+        accuracy = 100.0 * n_correct / n_samples
+        print(f'Accuracy of the network: {accuracy} %')
+        
+        for i in range(n_classes):
+            if n_class_samples[i] != 0:
+                accuracy = 100.0 * n_class_correct[i] / n_class_samples[i]
+            else:
+                accuracy = 0
+
+            print(f'Accuracy of {classes[i]} fingers: {accuracy} %')
+
 
 if __name__ == "__main__":
     main()
