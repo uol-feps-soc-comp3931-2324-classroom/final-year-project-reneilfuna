@@ -19,8 +19,8 @@ def main():
     # Hyper parameters
     batch_s = 36
     n_classes = 6
-    learning_rate = 0.005
-    n_epochs = 3
+    learning_rate = 0.01
+    n_epochs = 1
 
     preprocess = transforms.Compose([transforms.ToTensor()])
 
@@ -60,7 +60,7 @@ def main():
             if (i+1) % 100 == 0:
                 print(f'Epoch [{epoch+1}/{n_epochs}], Step [{i+1}/{total_steps}], Loss: {loss.item():.4f}')
 
-    print('Finished Training')       
+    print('Finished Training! \n')       
 
     with torch.no_grad(): # Don't need backward propagation and gradient calculations
         n_correct = 0
@@ -84,13 +84,13 @@ def main():
                 n_class_samples[label] += 1
 
         accuracy = 100.0 * n_correct / n_samples
-        print(f'Accuracy of the network: {accuracy} %')
+        print(f'Network with learning rate of {learning_rate} over {n_epochs} epochs results in accuracy of: {accuracy} %')
         
         for i in range(n_classes):
             if n_class_samples[i] != 0:
                 accuracy = 100.0 * n_class_correct[i] / n_class_samples[i]
             else:
-                accuracy = 0
+                accuracy = 'NaN'
 
             print(f'Accuracy of {classes[i]} fingers: {accuracy} %')
 
