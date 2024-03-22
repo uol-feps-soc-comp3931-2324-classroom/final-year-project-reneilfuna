@@ -3,7 +3,9 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
+from sklearn.metrics import confusion_matrix
 from torch.utils.data import DataLoader
 from dataset import Fingers
 from model import ConvNet
@@ -19,7 +21,7 @@ def main():
     # Hyper parameters
     batch_s = 36
     n_classes = 6
-    learning_rate = 0.01
+    learning_rate = 0.05
     n_epochs = 1
 
     preprocess = transforms.Compose([transforms.ToTensor()])
@@ -62,6 +64,10 @@ def main():
 
     print('Finished Training! \n')       
 
+    # Tracking preds and labels
+    all_predictions = []
+    all_labels = []
+
     with torch.no_grad(): # Don't need backward propagation and gradient calculations
         n_correct = 0
         n_samples = 0
@@ -73,6 +79,10 @@ def main():
             outputs = model(images)
             # max returns (value, index)
             _, predicted = torch.max(outputs, 1)
+
+            all_predictions.extend(predicted.cpu().numpy())
+            all_labels.extend(labels.cpu().numpy())
+
             n_samples += labels.size(0)
             n_correct += (predicted == labels).sum().item()
 
@@ -83,16 +93,27 @@ def main():
                     n_class_correct[label] += 1
                 n_class_samples[label] += 1
 
-        accuracy = 100.0 * n_correct / n_samples
-        print(f'Network with learning rate of {learning_rate} over {n_epochs} epochs results in accuracy of: {accuracy} %')
-        
-        for i in range(n_classes):
-            if n_class_samples[i] != 0:
-                accuracy = 100.0 * n_class_correct[i] / n_class_samples[i]
-            else:
-                accuracy = 'NaN'
+    all_predictions = np.array(all_predictions)
+    all_labels = np.array(all_labels)
+    confusion_m = confusion_matrix(all_labels, all_predictions)
 
-            print(f'Accuracy of {classes[i]} fingers: {accuracy} %')
+    accuracy = 100.0 * n_correct / n_samples
+    print(f'Network with learning rate of {learning_rate} over {n_epochs} epochs results in accuracy of: {accuracy} %')
+        
+    for i in range(n_classes):
+        if n_class_samples[i] != 0:
+            accuracy = 100.0 * n_class_correct[i] / n_class_samples[i]
+        else:
+            accuracy = 'NaN'
+
+        print(f'Accuracy of {classes[i]} fingers: {accuracy} %')
+
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(confusion_m, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
+    plt.xlabel('Predicted labels')
+    plt.ylabel('True labels')
+    plt.title('Confusion Matrix')
+    plt.show()
 
 
 if __name__ == "__main__":
