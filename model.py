@@ -19,6 +19,7 @@ class ConvNet(nn.Module):
         def forward(self, x):
             x = self.pool(F.relu(self.conv1(x)))
             x = self.pool(F.relu(self.conv2(x)))
+            # print(x.shape)
             x = self.pool(F.relu(self.conv3(x)))
             # Flattening the tensor dimensions after convolutions
             x = x.view(-1, 128*13*13)

@@ -37,6 +37,45 @@ class Fingers(Dataset):
         # return image and label
         return(image, label)
     
+
+from PIL import Image
+
+class Digits(Dataset): # 1230 images of size '100x100'
+
+    # define constructor
+    def __init__(self, directory, transform=None):
+        '''
+        Arguments:
+        + directory (string): Directory containing image data
+        + transform (callable): optional transform to apply on sample
+        '''
+        # directory containing the images
+        self.directory = directory
+        self.transform = transform
+        self.glob_path = glob.glob(directory)
+        self.dataset = []
+        self.class_set = []
+        # Images follow the pattern of <some random string>_<class>.png, we parse through the string name to extract the number of fingers in the photo.
+        for img_path in self.glob_path:
+            self.dataset.append(img_path)
+            self.class_set.append(int(img_path[-5:-4]))
+        # dataset contains paths of all the iamges
+        self.dataset = np.array(self.dataset)
+        
+
+    def __len__(self):
+        # length of list
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        image = Image.open(self.dataset[idx])
+        if self.transform:
+            image = self.transform(image)
+        label = self.class_set[idx]
+
+        # return image and label
+        return(image, label)
+    
     
 
 
