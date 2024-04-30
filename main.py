@@ -10,10 +10,6 @@ from torch.utils.data import DataLoader
 from dataset import Fingers
 from model import ConvNet
 
-def imshow(sample_element):
-    plt.imshow(sample_element[0].numpy().reshape((128, 128)), cmap='gray')
-    plt.show()
-
 def main():
     # Device config
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
