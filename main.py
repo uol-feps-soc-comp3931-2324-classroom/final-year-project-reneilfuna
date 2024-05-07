@@ -17,7 +17,7 @@ def main():
     # Hyper parameters
     batch_s = 18 # Determines how many times the model steps through (2000, 1000, 500)
     n_classes = 6 # Model classifications (number of fingers)
-    learning_rate = 0.1 # Determines how much the model changes during training
+    learning_rate = 0.01 # Determines how much the model changes during training
     n_epochs = 1 # Determines how many times the training process loops
 
     preprocess = transforms.Compose([transforms.ToTensor()])
